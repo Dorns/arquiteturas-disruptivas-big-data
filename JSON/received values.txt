@@ -1,0 +1,5 @@
+var payload = JSON.parse(msg.payload.trim());
+if(payload.luz){
+    msg.payload = payload.luz;
+    return msg;    
+}else return undefined;

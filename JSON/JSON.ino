@@ -1,32 +1,27 @@
 #include <ArduinoJson.h>
-
 const int LED = 3;
-
+const int LUZ = A1;
+const int TAMANHO = 200;
 void setup() {
-  Serial.begin(9600);
-  pinMode(LED, OUTPUT);
-  Serial.setTimeout(50);
+ Serial.begin(9600);
+ Serial.setTimeout(10); //1000ms é muito tempo
+ pinMode(LED,OUTPUT);
 }
-
 void loop() {
- 
- if (Serial.available() > 0){
-   char texto[200];
-   Serial.readBytesUntil('\n', texto, 200);
-   //Criar o buffer do JSON
-   StaticJsonBuffer<200> jsonBuffer; // reserva 200 bytes
-   //Decodificar o JSON que esta em texto
-   JsonObject& obj = jsonBuffer.parseObject(texto);
-   //Verificar se o objeto foi criado 
-   if(obj.success()){
-    int led = obj["led"];
-    //Acender o led
-    analogWrite(LED, led);
-    Serial.println(String("Valor do LED: ") + led);
-   }
- obj["luz"] = analogRead(A1);
- obj.printTo(Serial); 
- Serial.println(); 
- delay(500); 
+ if (Serial.available() > 0) {
+ //Lê o texto disponível na porta serial:
+ char texto[TAMANHO];
+ Serial.readBytesUntil('\n', texto, TAMANHO);
+ //Grava o texto recebido como JSON
+ StaticJsonBuffer<TAMANHO> jsonBuffer;
+ JsonObject& json = jsonBuffer.parseObject(texto);
+ if(json.success() && json.containsKey("led")) {
+ analogWrite(LED, json["led"]);
  }
+ }
+ StaticJsonBuffer<TAMANHO> jsonBuffer;
+ JsonObject& json = jsonBuffer.createObject();
+ json["luz"] = analogRead(LUZ);
+ json.printTo(Serial); Serial.println();
+ delay(1000);
 }
